@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    app:startDestination="@+id/homeScreen">
+
+    <fragment
+        android:id="@+id/homeScreen"
+        android:name="dsc.mwahbak.ui.main.home.HomeFragment"
+        android:label="@string/home"
+        tools:layout="@layout/fragment_home"/>
+
+   <fragment
+        android:id="@+id/searchScreen"
+        android:name="dsc.mwahbak.ui.main.search.SearchFragment"
+        android:label="@string/search"
+        tools:layout="@layout/fragment_search"/>
+
+    <fragment
+        android:id="@+id/addNewScreen"
+        android:name="dsc.mwahbak.ui.main.addnew.AddNewTalent"
+        android:label="@string/add"
+        tools:layout="@layout/fragment_add_new_talent"/>
+
+    <fragment
+        android:id="@+id/notificationsScreen"
+        android:name="dsc.mwahbak.ui.main.notification.NotificationsFragment"
+        android:label="@string/notifications"
+        tools:layout="@layout/fragment_notifications"/>
+
+    <fragment
+        android:id="@+id/profileScreen"
+        android:name="dsc.mwahbak.ui.main.profile.ProfileFragment"
+        android:label="@string/profile"
+        tools:layout="@layout/fragment_profile"/>
+
+
+</navigation>
