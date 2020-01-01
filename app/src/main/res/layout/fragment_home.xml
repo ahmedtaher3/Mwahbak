@@ -5,7 +5,7 @@
         android:layout_height="match_parent"
         tools:context=".ui.main.home.HomeFragment">
 
-        <com.androidwave.exoplayer.ui.ExoPlayerRecyclerView
+        <dsc.mwahbak.ui.main.home.ExoPlayerRecyclerView
             android:id="@+id/exoPlayerRecyclerView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
