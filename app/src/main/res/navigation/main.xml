@@ -19,7 +19,7 @@
 
     <fragment
         android:id="@+id/addNewScreen"
-        android:name="dsc.mwahbak.ui.main.addnew.AddNewTalent"
+        android:name="dsc.mwahbak.ui.main.addnew.AddNewTalentActivity"
         android:label="@string/add"
         tools:layout="@layout/fragment_add_new_talent"/>
 

@@ -1,16 +1,40 @@
 package dsc.mwahbak.ui.main.home;
 
+import android.app.Activity;
 import android.content.Context;
+import android.graphics.drawable.Drawable;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.LinearLayoutManager;
+
+import com.devbrackets.android.exomedia.listener.OnPreparedListener;
+import com.devbrackets.android.exomedia.ui.widget.VideoView;
+
+import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 
 import dsc.mwahbak.R;
+import dsc.mwahbak.models.MediaObject;
+import dsc.mwahbak.ui.main.home.adapter.MediaRecyclerAdapter;
+import dsc.mwahbak.util.DividerItemDecoration;
+
+import static android.widget.LinearLayout.VERTICAL;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -20,7 +44,19 @@ import dsc.mwahbak.R;
  * Use the {@link HomeFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class HomeFragment extends Fragment {
+public class HomeFragment extends Fragment implements OnPreparedListener {
+    private static final String TAG = "HomeFragment";
+
+    ExoPlayerRecyclerView mRecyclerView;
+
+    private ArrayList<MediaObject> mediaObjectList = new ArrayList<>();
+    private MediaRecyclerAdapter mAdapter;
+    private boolean firstTime = true;
+
+    private View view = null;
+    private Context mContext;
+    private VideoView videoView;
+
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -64,10 +100,29 @@ public class HomeFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_home, container, false);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
+        view = inflater.inflate(R.layout.fragment_home, container, false);
+
+        mRecyclerView = view.findViewById(R.id.exoPlayerRecyclerView);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        Drawable dividerDrawable = ContextCompat.getDrawable(getActivity(), R.drawable.divider_drawable);
+        mRecyclerView.addItemDecoration(new DividerItemDecoration(dividerDrawable));
+        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+
+        return view;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        Log.d(TAG, "onViewCreated: ");
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        Log.d(TAG, "onActivityCreated: ");
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -77,15 +132,18 @@ public class HomeFragment extends Fragment {
         }
     }
 
+
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
+        this.mContext = context;
+         if (context instanceof OnFragmentInteractionListener) {
             mListener = (OnFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
         }
+
     }
 
     @Override
@@ -93,6 +151,14 @@ public class HomeFragment extends Fragment {
         super.onDetach();
         mListener = null;
     }
+
+
+
+    @Override
+    public void onPrepared() {
+        videoView.start();
+    }
+
 
     /**
      * This interface must be implemented by activities that contain this
@@ -108,4 +174,6 @@ public class HomeFragment extends Fragment {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
+
+
 }

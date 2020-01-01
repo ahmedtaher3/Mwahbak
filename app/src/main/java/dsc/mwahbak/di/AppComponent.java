@@ -2,7 +2,7 @@ package dsc.mwahbak.di;
 
 import android.app.Application;
 
-import dsc.mwahbak.BaseApplication;
+import dsc.mwahbak.base.BaseApplication;
 
 
 import javax.inject.Singleton;
@@ -11,6 +11,7 @@ import dagger.BindsInstance;
 import dagger.Component;
 import dagger.android.AndroidInjector;
 import dagger.android.support.AndroidSupportInjectionModule;
+import dsc.mwahbak.base.SessionManager;
 
 @Singleton
 @Component(
@@ -23,7 +24,7 @@ import dagger.android.support.AndroidSupportInjectionModule;
 )
 public interface AppComponent extends AndroidInjector<BaseApplication> {
 
-    //SessionManager sessionManager();
+    SessionManager sessionManager();
 
     @Component.Builder
     interface Builder{

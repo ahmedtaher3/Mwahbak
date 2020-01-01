@@ -8,7 +8,7 @@ import androidx.lifecycle.ViewModel;
 
 import javax.inject.Inject;
 
-import dsc.mwahbak.SessionManager;
+import dsc.mwahbak.base.SessionManager;
 import dsc.mwahbak.models.User;
 import dsc.mwahbak.network.auth.AuthApi;
 import io.reactivex.functions.Function;
