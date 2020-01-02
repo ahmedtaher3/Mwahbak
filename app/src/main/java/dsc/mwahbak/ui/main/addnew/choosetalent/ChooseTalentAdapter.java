@@ -1,8 +1,10 @@
 package dsc.mwahbak.ui.main.addnew.choosetalent;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Build;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,7 +16,12 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.RequiresApi;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.bumptech.glide.Glide;
 
 import java.util.HashMap;
 import java.util.List;
@@ -32,21 +39,23 @@ public class ChooseTalentAdapter extends RecyclerView.Adapter<ChooseTalentAdapte
     private static final String TAG = "ChooseTalentAdapter";
     private Context context;
     private List<TalentTypeModel> my_data;
-    private static int currentItem = 0;
+    private static int currentItem = -1;
+    AdapterClick adapterClick;
 
-    Map<Integer,Object> deletedItems;
 
 
-    public void hideItem(final int position) {
 
-        notifyItemRemoved(position);
+    public interface AdapterClick {
+        void itemClick (int typeID);
     }
 
 
 
-    public ChooseTalentAdapter(Context context, List<TalentTypeModel> my_data) {
+    public ChooseTalentAdapter(Context context, List<TalentTypeModel> my_data , AdapterClick adapterClick  ) {
         this.context = context;
         this.my_data = my_data;
+        this.adapterClick = adapterClick;
+
 
 
     }
@@ -60,32 +69,32 @@ public class ChooseTalentAdapter extends RecyclerView.Adapter<ChooseTalentAdapte
         return new ViewHolder(itemView);
     }
 
+    @SuppressLint("ResourceType")
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
 
         final TalentTypeModel model = my_data.get(position);
 
+        holder.name.setText(model.getName());
+        Glide.with(context).load(model.getImage_url()).into(holder.image);
+
         holder.view.setOnClickListener(new View.OnClickListener() {
-            @RequiresApi(api = Build.VERSION_CODES.M)
+
             @Override
             public void onClick(View v) {
                 currentItem = position;
                 notifyDataSetChanged();
-
-
+                adapterClick.itemClick(model.getId());
             }
 
 
         });
 
         if (position == currentItem) {
-            holder.item.setBackgroundColor(context.getColor(R.color.black));
-
-
+            holder.item.setBackgroundColor((Color.parseColor(context.getResources().getString(R.color.grey))));
         } else {
-            holder.item.setBackgroundColor(context.getColor(R.color.white));
-
+            holder.item.setBackgroundColor((Color.parseColor(context.getResources().getString(R.color.white))));
         }
 
 
@@ -114,6 +123,8 @@ public class ChooseTalentAdapter extends RecyclerView.Adapter<ChooseTalentAdapte
 
         }
     }
+
+
 
 
 }

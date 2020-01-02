@@ -36,6 +36,7 @@ import java.util.concurrent.TimeUnit;
 
 import dsc.mwahbak.R;
 import dsc.mwahbak.models.MediaObject;
+import dsc.mwahbak.ui.main.addnew.choosetalent.ChooseTalentAdapter;
 import dsc.mwahbak.ui.main.home.adapter.MediaRecyclerAdapter;
 import dsc.mwahbak.util.DividerItemDecoration;
 

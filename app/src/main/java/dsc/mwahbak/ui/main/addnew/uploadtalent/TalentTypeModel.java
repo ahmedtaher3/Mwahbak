@@ -2,9 +2,9 @@ package dsc.mwahbak.ui.main.addnew.uploadtalent;
 
 public class TalentTypeModel {
 
-    String image_url , id , name ;
-
-    public TalentTypeModel(String image_url, String id, String name) {
+    String image_url, name;
+    int id;
+    public TalentTypeModel(String image_url, int id, String name) {
         this.image_url = image_url;
         this.id = id;
         this.name = name;
@@ -18,11 +18,11 @@ public class TalentTypeModel {
         this.image_url = image_url;
     }
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 
