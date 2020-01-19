@@ -3,6 +3,12 @@ package dsc.mwahbak.ui.main.addnew.choosetalent;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -10,27 +16,29 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
+import com.google.gson.GsonBuilder;
 
 import java.util.ArrayList;
 
 import dsc.mwahbak.R;
+import dsc.mwahbak.network.ApiResponse;
+import dsc.mwahbak.network.GetDataService;
+import dsc.mwahbak.network.RetrofitClientInstance;
 import dsc.mwahbak.ui.main.addnew.choosemedia.ChooseMediaTypeFragment;
-import dsc.mwahbak.ui.main.addnew.uploadtalent.TalentTypeModel;
+import dsc.mwahbak.models.TalentTypeModel;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * A simple {@link Fragment} subclass.
  */
 public class ChooseTalentTypeFragment extends Fragment implements ChooseTalentAdapter.AdapterClick{
     public static final String TAG = "ChooseTalentTypeFragment";
-
+    private int typeID = 0;
     ArrayList<TalentTypeModel> talentTypeModels ;
     ChooseTalentAdapter chooseTalentAdapter;
-
+    GetDataService dataService;
     public ChooseTalentTypeFragment() {
         // Required empty public constructor
     }
@@ -39,14 +47,9 @@ public class ChooseTalentTypeFragment extends Fragment implements ChooseTalentAd
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         talentTypeModels = new ArrayList<>();
-
-        talentTypeModels.add(new TalentTypeModel("https://res.cloudinary.com/dcpvhccpi/image/upload/v1577980508/electric-guitar.png",1 , "Singing"));
-        talentTypeModels.add(new TalentTypeModel("https://res.cloudinary.com/dcpvhccpi/image/upload/v1577980508/clapperboard.png",2 , "Acting"));
-        talentTypeModels.add(new TalentTypeModel("https://res.cloudinary.com/dcpvhccpi/image/upload/v1577980508/paint.png",3 , "Drawing"));
-        talentTypeModels.add(new TalentTypeModel("https://res.cloudinary.com/dcpvhccpi/image/upload/v1577980508/soccer-ball.png",4 , "FootBall"));
-        talentTypeModels.add(new TalentTypeModel("https://res.cloudinary.com/dcpvhccpi/image/upload/v1577980508/polaroid.png",5 , "Photographing"));
-        talentTypeModels.add(new TalentTypeModel("https://res.cloudinary.com/dcpvhccpi/image/upload/v1577980509/on-air.png",6 , "Other"));
          chooseTalentAdapter = new ChooseTalentAdapter(getActivity() , talentTypeModels , this::itemClick);
+        dataService = RetrofitClientInstance.getRetrofitInstance().create(GetDataService.class);
+
     }
 
     @Override
@@ -56,10 +59,33 @@ public class ChooseTalentTypeFragment extends Fragment implements ChooseTalentAd
 
         View view = inflater.inflate(R.layout.fragment_choose_talent_type, container, false);
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.talentTypeRecycler);
+        Button next = (Button) view.findViewById(R.id.next_btn);
+        Button back = (Button) view.findViewById(R.id.back_btn);
+
+
         GridLayoutManager layoutManager = new GridLayoutManager(getActivity(), 3);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setNestedScrollingEnabled(false);
         recyclerView.setAdapter(chooseTalentAdapter);
+        get_item_family();
+
+        next.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if (typeID != 0) {
+                    replaceFragmentWithAnimation(new ChooseMediaTypeFragment(), ChooseMediaTypeFragment.TAG, typeID);
+                }
+
+            }
+        });
+
+        back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getActivity().onBackPressed();
+            }
+        });
 
         return view;
     }
@@ -81,7 +107,28 @@ public class ChooseTalentTypeFragment extends Fragment implements ChooseTalentAd
     @Override
     public void itemClick(int typeID) {
         Log.d(TAG, "itemClick: done");
-       // replaceFragmentWithAnimation(new ChooseMediaTypeFragment() , ChooseMediaTypeFragment.TAG , typeID);
+        this.typeID = typeID;
+
+    }
+
+
+
+    public void get_item_family() {
+
+        Call<ApiResponse> data = dataService.get_cats();
+        data.enqueue(new Callback<ApiResponse>() {
+            @Override
+            public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
+                Log.w("gson => ",new GsonBuilder().setPrettyPrinting().create().toJson(response.body()));
+
+                chooseTalentAdapter.setMy_data(response.body().getCatModels());
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse> call, Throwable t) {
+             }
+        });
+
 
     }
 }

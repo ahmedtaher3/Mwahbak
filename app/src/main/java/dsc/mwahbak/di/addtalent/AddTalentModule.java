@@ -5,19 +5,19 @@ import dagger.Module;
 @Module
 public class AddTalentModule {
 
-/*    @MainScope
+/*    @LoginScope
     @Provides
     static PostsRecyclerAdapter provideAdapter(){
         return new PostsRecyclerAdapter();
     }
 
-    @MainScope
+    @LoginScope
     @Provides
     static LinearLayoutManager provideLinearLayoutManager (Application application){
         return new LinearLayoutManager(application);
     }
 
-    @MainScope
+    @LoginScope
     @Provides
     static MainApi provideMainApi(Retrofit retrofit){
         return retrofit.create(MainApi.class);

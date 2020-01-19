@@ -14,6 +14,7 @@ import com.bumptech.glide.Glide;
 import java.util.List;
 
 import dsc.mwahbak.R;
+import dsc.mwahbak.models.TalentTypeModel;
 
 public class UploadTalentAdapter extends RecyclerView.Adapter<UploadTalentAdapter.ViewHolder> {
 
@@ -42,7 +43,7 @@ public class UploadTalentAdapter extends RecyclerView.Adapter<UploadTalentAdapte
         final TalentTypeModel model = my_data.get(position);
 
         holder.name.setText(model.getName());
-        Glide.with(context).load(model.getImage_url()).into(holder.imageView);
+        Glide.with(context).load(model.getImage()).into(holder.imageView);
 
     }
 

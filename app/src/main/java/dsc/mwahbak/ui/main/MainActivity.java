@@ -3,7 +3,9 @@ package dsc.mwahbak.ui.main;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,10 +16,15 @@ import androidx.fragment.app.FragmentManager;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomnavigation.LabelVisibilityMode;
+import com.google.gson.Gson;
 
 import dsc.mwahbak.R;
 import dsc.mwahbak.base.BaseActivity;
+import dsc.mwahbak.base.BaseApplication;
+import dsc.mwahbak.data.DataManager;
 import dsc.mwahbak.databinding.ActivityMainBinding;
+import dsc.mwahbak.models.User;
+import dsc.mwahbak.ui.auth.LoginActivity;
 import dsc.mwahbak.ui.main.addnew.AddNewTalentActivity;
 import dsc.mwahbak.ui.main.home.HomeFragment;
 import dsc.mwahbak.ui.main.notification.NotificationsFragment;
@@ -32,6 +39,7 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> implements B
         , ProfileFragment.OnFragmentInteractionListener {
 
     private static final String TAG = "MainActivity";
+    DataManager dataManager;
 
     private ActivityMainBinding activityMainBinding;
 
@@ -52,9 +60,14 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> implements B
         super.onCreate(savedInstanceState);
 
         activityMainBinding = getViewDataBinding();
-
+        dataManager = ((BaseApplication) getApplication()).getDataManager();
         setSupportActionBar(activityMainBinding.toolbar);
         getSupportActionBar().setTitle(getString(R.string.home));
+
+       /* Gson gson = new Gson();
+        String json =  dataManager.getUser();
+        User user = gson.fromJson(json, User.class);
+        Toast.makeText(this, user.getName(), Toast.LENGTH_SHORT).show();*/
 
         activityMainBinding.navigation.setOnNavigationItemSelectedListener(this);
         activityMainBinding.navigation.setLabelVisibilityMode(LabelVisibilityMode.LABEL_VISIBILITY_UNLABELED);
@@ -146,5 +159,25 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> implements B
         }
 
 
+    }
+
+
+    public boolean onCreateOptionsMenu(Menu menu) {
+        if(!dataManager.getLoggingMode())
+        getMenuInflater().inflate(R.menu.main, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId())
+
+        {
+            case R.id.login:
+                startActivity(new Intent(this , LoginActivity.class));
+                finish();
+        }
+        return true;
     }
 }

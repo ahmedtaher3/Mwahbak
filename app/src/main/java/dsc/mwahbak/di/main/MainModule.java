@@ -12,19 +12,19 @@ import retrofit2.Retrofit;
 @Module
 public class MainModule {
 
-/*    @MainScope
+/*    @LoginScope
     @Provides
     static PostsRecyclerAdapter provideAdapter(){
         return new PostsRecyclerAdapter();
     }
 
-    @MainScope
+    @LoginScope
     @Provides
     static LinearLayoutManager provideLinearLayoutManager (Application application){
         return new LinearLayoutManager(application);
     }
 
-    @MainScope
+    @LoginScope
     @Provides
     static MainApi provideMainApi(Retrofit retrofit){
         return retrofit.create(MainApi.class);

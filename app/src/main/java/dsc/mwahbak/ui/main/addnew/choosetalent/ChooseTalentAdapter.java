@@ -1,45 +1,32 @@
 package dsc.mwahbak.ui.main.addnew.choosetalent;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Build;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.RequiresApi;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import dsc.mwahbak.R;
-import dsc.mwahbak.ui.main.addnew.uploadtalent.TalentTypeModel;
-import io.reactivex.Observer;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.schedulers.Schedulers;
-import retrofit2.Retrofit;
+import dsc.mwahbak.models.Categories;
+import dsc.mwahbak.models.TalentTypeModel;
 
 public class ChooseTalentAdapter extends RecyclerView.Adapter<ChooseTalentAdapter.ViewHolder> {
     private static final String TAG = "ChooseTalentAdapter";
     private Context context;
     private List<TalentTypeModel> my_data;
-    private static int currentItem = -1;
+    private int currentItem = -1;
     AdapterClick adapterClick;
 
 
@@ -77,7 +64,7 @@ public class ChooseTalentAdapter extends RecyclerView.Adapter<ChooseTalentAdapte
         final TalentTypeModel model = my_data.get(position);
 
         holder.name.setText(model.getName());
-        Glide.with(context).load(model.getImage_url()).into(holder.image);
+        Glide.with(context).load(model.getImage()).into(holder.image);
 
         holder.view.setOnClickListener(new View.OnClickListener() {
 
@@ -125,6 +112,8 @@ public class ChooseTalentAdapter extends RecyclerView.Adapter<ChooseTalentAdapte
     }
 
 
-
-
+    public void setMy_data(List<TalentTypeModel> my_data) {
+        this.my_data = my_data;
+        notifyDataSetChanged();
+    }
 }

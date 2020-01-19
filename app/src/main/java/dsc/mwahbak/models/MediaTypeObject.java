@@ -1,10 +1,10 @@
-package dsc.mwahbak.ui.main.addnew.uploadtalent;
+package dsc.mwahbak.models;
 
-public class TalentTypeModel {
 
+public class MediaTypeObject {
     String image_url, name;
     int id;
-    public TalentTypeModel(String image_url, int id, String name) {
+    public MediaTypeObject(String image_url, int id, String name) {
         this.image_url = image_url;
         this.id = id;
         this.name = name;
@@ -34,3 +34,4 @@ public class TalentTypeModel {
         this.name = name;
     }
 }
+
