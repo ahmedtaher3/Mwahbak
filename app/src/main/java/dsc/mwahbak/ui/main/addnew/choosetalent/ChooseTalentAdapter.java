@@ -79,7 +79,7 @@ public class ChooseTalentAdapter extends RecyclerView.Adapter<ChooseTalentAdapte
         });
 
         if (position == currentItem) {
-            holder.item.setBackgroundColor((Color.parseColor(context.getResources().getString(R.color.grey))));
+            holder.item.setBackgroundColor((Color.parseColor(context.getResources().getString(R.color.black))));
         } else {
             holder.item.setBackgroundColor((Color.parseColor(context.getResources().getString(R.color.white))));
         }

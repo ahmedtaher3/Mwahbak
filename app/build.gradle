@@ -120,4 +120,8 @@ dependencies {
     implementation 'com.github.adrielcafe:AndroidAudioRecorder:0.3.0'
 
     implementation 'com.android.support:multidex:1.0.3'
+
+    implementation 'com.amitshekhar.android:android-networking:1.0.2'
+    implementation 'com.kaopiz:kprogresshud:1.2.0'
+
 }
