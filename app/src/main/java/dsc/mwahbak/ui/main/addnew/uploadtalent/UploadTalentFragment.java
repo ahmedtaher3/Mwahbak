@@ -22,7 +22,9 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -35,6 +37,21 @@ import com.androidnetworking.common.Priority;
 import com.androidnetworking.error.ANError;
 import com.androidnetworking.interfaces.JSONObjectRequestListener;
 import com.androidnetworking.interfaces.UploadProgressListener;
+import com.google.android.exoplayer2.ExoPlayerFactory;
+import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.source.ExtractorMediaSource;
+import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
+import com.google.android.exoplayer2.trackselection.TrackSelection;
+import com.google.android.exoplayer2.trackselection.TrackSelector;
+import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
+import com.google.android.exoplayer2.ui.PlayerView;
+import com.google.android.exoplayer2.upstream.BandwidthMeter;
+import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.util.Util;
 import com.google.gson.Gson;
 import com.kaopiz.kprogresshud.KProgressHUD;
 
@@ -65,28 +82,31 @@ import static android.app.Activity.RESULT_OK;
  */
 public class UploadTalentFragment extends Fragment {
     public static final String TAG = "UploadTalentFragment";
-
-    File file;
-    String filePath;
-
-    ImageView add_media;
-
-    DataManager dataManager ;
-
-    User user ;
+    private static final String AppName = "Mwahbak";
 
     String FLAG;
+    File file;
+    String filePath;
+    DataManager dataManager ;
+    User user ;
+
+    private PlayerView videoSurfaceView;
+    private SimpleExoPlayer videoPlayer;
+    private RelativeLayout image_layout;
+    private ImageView add_media;
+    private EditText talent_desc;
+
+
     String[] permissions = {
             "android.permission.RECORD_AUDIO",
             "android.permission.WRITE_EXTERNAL_STORAGE",
             "android.permission.READ_EXTERNAL_STORAGE",
             "android.permission.CAMERA"
-
     };
-
     public UploadTalentFragment() {
         // Required empty public constructor
     }
+
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -106,18 +126,33 @@ public class UploadTalentFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_update_talent, container, false);
 
 
-
-
-
-
         add_media = (ImageView) view.findViewById(R.id.add_media);
+        image_layout = (RelativeLayout) view.findViewById(R.id.image_layout);
+        videoSurfaceView = view.findViewById(R.id.ep_video_view);
+        talent_desc = view.findViewById(R.id.talent_desc);
+
+
+        videoSurfaceView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_ZOOM);
+
+        BandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
+        TrackSelection.Factory videoTrackSelectionFactory =
+                new AdaptiveTrackSelection.Factory(bandwidthMeter);
+        TrackSelector trackSelector =
+                new DefaultTrackSelector(videoTrackSelectionFactory);
+
+        //Create the player using ExoPlayerFactory
+        videoPlayer = ExoPlayerFactory.newSimpleInstance(getActivity(), trackSelector);
+        // Disable Player Control
+        videoSurfaceView.setUseController(true);
+        // Bind the player to the view.
+        videoSurfaceView.setPlayer(videoPlayer);
+
+
         FLAG = getArguments().getString("MediaType");
 
         if (checkPermissions()) {
 
-
             pick_media(FLAG);
-
 
         } else {
             requestPermissions(permissions, 100);
@@ -140,20 +175,15 @@ public class UploadTalentFragment extends Fragment {
 
                 file = new File(filePath);
 
-                upload_file(user.getApiToken() , file);
+                upload_file(user.getApiToken() , file , talent_desc.getText().toString());
 
-                Log.d(TAG, "onActivityResult: " + file.getAbsolutePath());
+                DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(
+                        getActivity(), Util.getUserAgent(getActivity(), AppName));
 
-
-                MediaPlayer mp = new MediaPlayer();
-
-                try {
-                    mp.setDataSource(file.getPath() + File.separator + "");
-                    mp.prepare();
-                    mp.start();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                MediaSource videoSource = new ExtractorMediaSource.Factory(dataSourceFactory)
+                        .createMediaSource(Uri.fromFile(file));
+                videoPlayer.prepare(videoSource);
+                videoPlayer.setPlayWhenReady(true);
 
             } else if (resultCode == RESULT_CANCELED) {
                 // Oops! User has canceled the recording
@@ -166,28 +196,31 @@ public class UploadTalentFragment extends Fragment {
             file = new File(Objects.requireNonNull(getPathFromUri(getActivity(), data.getData())));
 
 
-            upload_file(user.getApiToken() , file);
+            upload_file(user.getApiToken() , file, talent_desc.getText().toString());
+
+            DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(
+                    getActivity(), Util.getUserAgent(getActivity(), AppName));
+
+            MediaSource videoSource = new ExtractorMediaSource.Factory(dataSourceFactory)
+                    .createMediaSource(Uri.fromFile(file));
+            videoPlayer.prepare(videoSource);
+            videoPlayer.setPlayWhenReady(true);
+
 
 
         } else if (requestCode == 3000) {
 
+            image_layout.setVisibility(View.VISIBLE);
+            videoSurfaceView.setVisibility(View.GONE);
 
             file = new File(Objects.requireNonNull(getPathFromUri(getActivity(), data.getData())));
 
             if (file.exists()) {
-
                 Bitmap myBitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
-
-
                 add_media.setImageBitmap(myBitmap);
-
             }
 
-            Log.d(TAG, "onActivityResult: " + user.getApiToken());
-            Log.d(TAG, "onActivityResult: " + file.getPath());
-
-
-            upload_file(user.getApiToken() , file);
+            upload_file(user.getApiToken() , file, talent_desc.getText().toString());
 
 
         }
@@ -394,7 +427,7 @@ public class UploadTalentFragment extends Fragment {
 
     KProgressHUD blg ;
 
-    void upload_file(String id , File file) {
+    void upload_file(String id , File file , String desc) {
         blg = KProgressHUD.create(getActivity())
                 .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
                 .setCancellable(true)
@@ -407,7 +440,7 @@ public class UploadTalentFragment extends Fragment {
                 .addMultipartFile("file", file)
                 .addMultipartParameter("api_token", id)
                 .addMultipartParameter("cat_id", "2")
-                .addMultipartParameter("description", "description2")
+                .addMultipartParameter("description", desc)
 
                 .setPriority(Priority.HIGH)
                 .build()
