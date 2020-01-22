@@ -21,5 +21,9 @@ public interface GetDataService {
     @FormUrlEncoded
     Call<ApiResponse> login(@FieldMap Map<String, String> qStringMap);
 
+    @POST("api/files")
+    @FormUrlEncoded
+    Call<ApiResponse> get_posts(@FieldMap Map<String, String> qStringMap);
+
 
 }

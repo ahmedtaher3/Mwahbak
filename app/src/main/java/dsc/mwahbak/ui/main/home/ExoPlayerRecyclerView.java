@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.StrictMode;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Display;
@@ -47,10 +48,14 @@ import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 
+import java.io.IOException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Objects;
 
 import dsc.mwahbak.R;
+import dsc.mwahbak.models.MediaModel;
 import dsc.mwahbak.models.MediaObject;
 import dsc.mwahbak.ui.main.home.adapter.PlayerViewHolder;
 
@@ -76,7 +81,7 @@ public class ExoPlayerRecyclerView extends RecyclerView {
      * variable declaration
      */
     // Media List
-    private ArrayList<MediaObject> mediaObjects = new ArrayList<>();
+    private ArrayList<MediaModel> mediaObjects = new ArrayList<>();
     private int videoSurfaceDefaultHeight = 0;
     private int screenDefaultHeight = 0;
     private Context context;
@@ -104,6 +109,10 @@ public class ExoPlayerRecyclerView extends RecyclerView {
 
     private void init(Context context) {
         this.context = context.getApplicationContext();
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+
+        StrictMode.setThreadPolicy(policy);
+
         Display display = ((WindowManager) Objects.requireNonNull(
                 getContext().getSystemService(Context.WINDOW_SERVICE))).getDefaultDisplay();
         Point point = new Point();
@@ -197,7 +206,7 @@ public class ExoPlayerRecyclerView extends RecyclerView {
                     case Player.STATE_BUFFERING:
                         Log.e(TAG, "onPlayerStateChanged: Buffering video.");
                         if (progressBar != null) {
-                            progressBar.setVisibility(VISIBLE);
+                            progressBar.setVisibility(GONE);
                         }
 
                         break;
@@ -330,14 +339,27 @@ public class ExoPlayerRecyclerView extends RecyclerView {
 
         DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(
                 context, Util.getUserAgent(context, AppName));
-        String mediaUrl = mediaObjects.get(targetPosition).getUrl();
+        String mediaUrl = mediaObjects.get(targetPosition).getPath();
+
+        URLConnection connection = null;
+        try {
+            connection = new URL(mediaUrl).openConnection();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        String contentType = connection.getHeaderField("Content-Type");
+        boolean image = contentType.startsWith("image/");
+
+        if(image)
+            videoSurfaceView.setVisibility(INVISIBLE);
+
         if (mediaUrl != null) {
             MediaSource videoSource = new ExtractorMediaSource.Factory(dataSourceFactory)
                     .createMediaSource(Uri.parse(mediaUrl));
             videoPlayer.prepare(videoSource);
             Glide.with(this)
                     .asBitmap()
-                    .load(mediaObjects.get(targetPosition).getCoverUrl())
+                    .load(mediaObjects.get(targetPosition).getUser().getImage())
                     .into(new CustomTarget<Bitmap>() {
                         @Override
                         public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
@@ -474,7 +496,7 @@ public class ExoPlayerRecyclerView extends RecyclerView {
         }
     }
 
-    public void setMediaObjects(ArrayList<MediaObject> mediaObjects) {
+    public void setMediaObjects(ArrayList<MediaModel> mediaObjects) {
         this.mediaObjects = mediaObjects;
     }
 

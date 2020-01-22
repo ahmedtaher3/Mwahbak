@@ -1,9 +1,7 @@
 package dsc.mwahbak.ui.main.home;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -12,35 +10,40 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.request.RequestOptions;
 import com.devbrackets.android.exomedia.listener.OnPreparedListener;
 import com.devbrackets.android.exomedia.ui.widget.VideoView;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.TimeUnit;
+import java.util.HashMap;
+import java.util.Map;
 
 import dsc.mwahbak.R;
-import dsc.mwahbak.models.MediaObject;
-import dsc.mwahbak.ui.main.addnew.choosetalent.ChooseTalentAdapter;
+import dsc.mwahbak.base.BaseApplication;
+import dsc.mwahbak.data.DataManager;
+import dsc.mwahbak.models.MediaModel;
+import dsc.mwahbak.models.User;
+import dsc.mwahbak.network.ApiResponse;
+import dsc.mwahbak.network.GetDataService;
+import dsc.mwahbak.network.RetrofitClientInstance;
 import dsc.mwahbak.ui.main.home.adapter.MediaRecyclerAdapter;
 import dsc.mwahbak.util.DividerItemDecoration;
-
-import static android.widget.LinearLayout.VERTICAL;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -53,9 +56,13 @@ import static android.widget.LinearLayout.VERTICAL;
 public class HomeFragment extends Fragment implements OnPreparedListener {
     private static final String TAG = "HomeFragment";
 
-    ExoPlayerRecyclerView mRecyclerView;
+    private GetDataService dataService;
+    private DataManager dataManager;
+    private User user;
 
-    private ArrayList<MediaObject> mediaObjectList = new ArrayList<>();
+    private RecyclerView mRecyclerView;
+
+    private ArrayList<MediaModel> mediaObjectList = new ArrayList<>();
     private MediaRecyclerAdapter mAdapter;
     private boolean firstTime = true;
 
@@ -99,10 +106,20 @@ public class HomeFragment extends Fragment implements OnPreparedListener {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        dataService = RetrofitClientInstance.getRetrofitInstance().create(GetDataService.class);
+        dataManager = ((BaseApplication) getActivity().getApplication()).getDataManager();
+
+        Gson gson = new Gson();
+        String json =  dataManager.getUser();
+        user = gson.fromJson(json, User.class);
+
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+
+
     }
 
     @Override
@@ -118,22 +135,6 @@ public class HomeFragment extends Fragment implements OnPreparedListener {
         prepareVideoList();
 
 
-        //set data object
-        mRecyclerView.setMediaObjects(mediaObjectList);
-        mAdapter = new MediaRecyclerAdapter(mediaObjectList, initGlide());
-
-        //Set Adapter
-        mRecyclerView.setAdapter(mAdapter);
-
-        if (firstTime) {
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                @Override
-                public void run() {
-                    mRecyclerView.playVideo(false);
-                }
-            });
-            firstTime = false;
-        }
 
 
         return view;
@@ -150,9 +151,7 @@ public class HomeFragment extends Fragment implements OnPreparedListener {
 
     @Override
     public void onDestroy() {
-        if (mRecyclerView != null) {
-            mRecyclerView.releasePlayer();
-        }
+
         super.onDestroy();
     }
 
@@ -221,58 +220,35 @@ public class HomeFragment extends Fragment implements OnPreparedListener {
 
 
     private void prepareVideoList() {
-        MediaObject mediaObject = new MediaObject();
-        mediaObject.setId(1);
-        mediaObject.setUserHandle("@h.pandya");
-        mediaObject.setTitle(
-                "Do you think the concept of marriage will no longer exist in the future?");
-        mediaObject.setCoverUrl(
-                "https://androidwave.com/media/images/exo-player-in-recyclerview-in-android-1.png");
-        mediaObject.setUrl("https://androidwave.com/media/androidwave-video-1.mp4");
 
-        MediaObject mediaObject2 = new MediaObject();
-        mediaObject2.setId(2);
-        mediaObject2.setUserHandle("@hardik.patel");
-        mediaObject2.setTitle(
-                "If my future husband doesn't cook food as good as my mother should I scold him?");
-        mediaObject2.setCoverUrl(
-                "https://androidwave.com/media/images/exo-player-in-recyclerview-in-android-2.png");
-        mediaObject2.setUrl("https://androidwave.com/media/androidwave-video-2.mp4");
+        Map<String, String> parms = new HashMap<>();
+        parms.put("user_id", String.valueOf(user.getId()));
+        parms.put("cat_id", "2");
+        Call<ApiResponse> data = dataService.get_posts(parms);
+        data.enqueue(new Callback<ApiResponse>() {
+            @Override
+            public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
+                Log.w("gson => ", new GsonBuilder().setPrettyPrinting().create().toJson(response.body()));
 
-        MediaObject mediaObject3 = new MediaObject();
-        mediaObject3.setId(3);
-        mediaObject3.setUserHandle("@arun.gandhi");
-        mediaObject3.setTitle("Give your opinion about the Ayodhya temple controversy.");
-        mediaObject3.setCoverUrl(
-                "https://androidwave.com/media/images/exo-player-in-recyclerview-in-android-3.png");
-        mediaObject3.setUrl("https://androidwave.com/media/androidwave-video-3.mp4");
+                mediaObjectList.addAll(response.body().getMediaModels());
 
-        MediaObject mediaObject4 = new MediaObject();
-        mediaObject4.setId(4);
-        mediaObject4.setUserHandle("@sachin.patel");
-        mediaObject4.setTitle("When did kama founders find sex offensive to Indian traditions");
-        mediaObject4.setCoverUrl(
-                "https://androidwave.com/media/images/exo-player-in-recyclerview-in-android-4.png");
-        mediaObject4.setUrl("https://androidwave.com/media/androidwave-video-6.mp4");
 
-        MediaObject mediaObject5 = new MediaObject();
-        mediaObject5.setId(5);
-        mediaObject5.setUserHandle("@monika.sharma");
-        mediaObject5.setTitle("When did you last cry in front of someone?");
-        mediaObject5.setCoverUrl(
-                "https://androidwave.com/media/images/exo-player-in-recyclerview-in-android-5.png");
-        mediaObject5.setUrl("https://androidwave.com/media/androidwave-video-5.mp4");
+                //set data object
 
-        mediaObjectList.add(mediaObject);
-        mediaObjectList.add(mediaObject2);
-        mediaObjectList.add(mediaObject3);
-        mediaObjectList.add(mediaObject4);
-        mediaObjectList.add(mediaObject5);
-        mediaObjectList.add(mediaObject);
-        mediaObjectList.add(mediaObject2);
-        mediaObjectList.add(mediaObject3);
-        mediaObjectList.add(mediaObject4);
-        mediaObjectList.add(mediaObject5);
+                mAdapter = new MediaRecyclerAdapter(getActivity() , mediaObjectList, initGlide());
+
+                //Set Adapter
+                mRecyclerView.setAdapter(mAdapter);
+
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse> call, Throwable t) {
+            }
+        });
+
+
+
     }
 
 

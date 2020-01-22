@@ -1,6 +1,7 @@
 package dsc.mwahbak.ui.main.home.adapter;
 
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
@@ -13,16 +14,18 @@ import com.bumptech.glide.RequestManager;
 import java.util.ArrayList;
 
 import dsc.mwahbak.R;
-import dsc.mwahbak.models.MediaObject;
+import dsc.mwahbak.models.MediaModel;
 
 public class MediaRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-  private ArrayList<MediaObject> mediaObjects;
+  private ArrayList<MediaModel> mediaObjects;
   private RequestManager requestManager;
+  private Context  context;
 
-  public MediaRecyclerAdapter(ArrayList<MediaObject> mediaObjects, RequestManager requestManager) {
+  public MediaRecyclerAdapter(Context context , ArrayList<MediaModel> mediaObjects, RequestManager requestManager ) {
     this.mediaObjects = mediaObjects;
     this.requestManager = requestManager;
+    this.context = context;
   }
 
   @NonNull
@@ -35,7 +38,7 @@ public class MediaRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
 
   @Override
   public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
-    ((PlayerViewHolder) viewHolder).onBind(mediaObjects.get(i), requestManager);
+    ((PlayerViewHolder) viewHolder).onBind(mediaObjects.get(i), requestManager , context);
   }
 
   @Override

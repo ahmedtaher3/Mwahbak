@@ -7,6 +7,7 @@ import java.util.ArrayList;
 
 import dsc.mwahbak.models.TalentTypeModel;
 import dsc.mwahbak.models.User;
+import dsc.mwahbak.models.MediaModel;
 
 public class ApiResponse {
 
@@ -25,6 +26,9 @@ public class ApiResponse {
     @SerializedName("user")
     @Expose
     private User user;
+
+    @SerializedName("files")
+    private ArrayList<MediaModel> mediaModels;
 
 
     public User getUser() {
@@ -59,4 +63,11 @@ public class ApiResponse {
         this.data = data;
     }
 
+    public ArrayList<MediaModel> getMediaModels() {
+        return mediaModels;
+    }
+
+    public void setMediaModels(ArrayList<MediaModel> mediaModels) {
+        this.mediaModels = mediaModels;
+    }
 }
